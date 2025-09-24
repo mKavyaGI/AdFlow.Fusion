@@ -1,0 +1,107 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ campaign.campaign_name }} - Campaign Details{% endblock %}
+
+{% block content %}
+<style>
+    .container { max-width: 900px; margin: 0 auto; padding: 20px; }
+    .card { background: #fff; border: 1px solid #e5e7eb; border-radius: 12px; padding: 24px; margin-bottom: 20px; }
+    .section-title { margin: 0 0 20px 0; font-size: 1.5rem; font-weight: 600; }
+    .campaign-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
+    .status-badge { 
+        padding: 6px 12px; border-radius: 20px; font-size: 0.875rem; font-weight: 500; 
+    }
+    .status-draft { background: #f3f4f6; color: #374151; }
+    .status-active { background: #d1fae5; color: #065f46; }
+    .status-paused { background: #fef3c7; color: #92400e; }
+    .status-ended { background: #fee2e2; color: #991b1b; }
+    .details-grid { 
+        display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); 
+        gap: 16px; margin-bottom: 24px; 
+    }
+    .detail-item strong { display: block; margin-bottom: 4px; color: #374151; font-weight: 500; }
+    .detail-item span { font-size: 1rem; line-height: 1.5; }
+    .keywords-section { margin-top: 24px; }
+    .keyword-tag { 
+        display: inline-block; padding: 4px 8px; background: #e0e7ff; color: #4338ca; 
+        border-radius: 6px; margin: 4px; font-size: 0.875rem; 
+    }
+    .back-link { color: #6b7280; text-decoration: none; margin-bottom: 16px; display: inline-block; }
+</style>
+
+<div class="container">
+    <a href="{% url 'business_profile' %}" class="back-link">← Back to Business Profiles</a>
+    
+    <div class="card">
+        <div class="campaign-header">
+            <h1 class="section-title">{{ campaign.campaign_name }}</h1>
+            <span class="status-badge status-{{ campaign.status }}">{{ campaign.get_status_display }}</span>
+        </div>
+        
+        {% if campaign.campaign_description %}
+            <p style="margin-bottom: 24px; color: #6b7280;">{{ campaign.campaign_description }}</p>
+        {% endif %}
+        
+        <div class="details-grid">
+            <div class="detail-item">
+                <strong>Platform</strong>
+                <span>{{ campaign.ad_account.platform.name }}</span>
+            </div>
+            <div class="detail-item">
+                <strong>Ad Account</strong>
+                <span>{{ campaign.ad_account.account_name }}</span>
+            </div>
+            <div class="detail-item">
+                <strong>Campaign Type</strong>
+                <span>{{ campaign.get_campaign_type_display }}</span>
+            </div>
+            <div class="detail-item">
+                <strong>Daily Budget</strong>
+                <span>${{ campaign.daily_budget }}</span>
+            </div>
+            <div class="detail-item">
+                <strong>Bid Amount</strong>
+                <span>${{ campaign.bid_amount }}</span>
+            </div>
+            <div class="detail-item">
+                <strong>Target Locations</strong>
+                <span>{{ campaign.target_locations }}</span>
+            </div>
+            {% if campaign.target_languages %}
+            <div class="detail-item">
+                <strong>Target Languages</strong>
+                <span>{{ campaign.target_languages }}</span>
+            </div>
+            {% endif %}
+            {% if campaign.business_profile %}
+            <div class="detail-item">
+                <strong>Business Profile</strong>
+                <span>{{ campaign.business_profile.business_name }}</span>
+            </div>
+            {% endif %}
+            <div class="detail-item">
+                <strong>Created</strong>
+                <span>{{ campaign.created_at|date:"M d, Y H:i" }}</span>
+            </div>
+        </div>
+        
+        <!-- Keywords Section -->
+        {% if keywords %}
+        <div class="keywords-section">
+            <h3 style="margin-bottom: 16px;">Keywords ({{ keywords|length }})</h3>
+            <div>
+                {% for keyword in keywords %}
+                    <span class="keyword-tag">
+                        {{ keyword.keyword_text }} 
+                        <small>({{ keyword.get_match_type_display }})</small>
+                        {% if keyword.bid_amount %}
+                            - ${{ keyword.bid_amount }}
+                        {% endif %}
+                    </span>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

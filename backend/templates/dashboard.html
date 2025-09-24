@@ -1,0 +1,631 @@
+{% extends 'base.html' %}
+
+{% block title %}Comprehensive Dashboard{% endblock %}
+
+{% block content %}
+<style>
+    /* --- Dashboard Specific Styles --- */
+    :root {
+        --primary-accent: #6366f1;
+        --secondary-accent: #8b5cf6;
+        --sidebar-bg: #111827;
+        --sidebar-link: #9ca3af;
+        --sidebar-link-hover: #ffffff;
+        --page-bg: #f9fafb;
+        --card-bg: #ffffff;
+        --border-color: #e5e7eb;
+        --text-dark: #1f2937;
+        --text-light: #6b7280;
+        --green-positive: #10b981;
+        --red-negative: #ef4444;
+        --orange-neutral: #f97316;
+    }
+
+    .dashboard-container {
+        display: flex;
+        background-color: var(--page-bg);
+        min-height: 100vh;
+    }
+
+    .sidebar {
+        width: 80px;
+        background-color: var(--sidebar-bg);
+        padding: 24px 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        position: fixed;
+        height: 100%;
+        top: 0;
+        left: 0;
+    }
+
+    .sidebar-logo {
+        width: 40px;
+        height: 40px;
+        background: linear-gradient(135deg, var(--primary-accent), var(--secondary-accent));
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        margin-bottom: 40px;
+    }
+
+    .sidebar nav {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+        flex-grow: 1;
+    }
+
+    .sidebar-link {
+        color: var(--sidebar-link);
+        text-decoration: none;
+        padding: 12px;
+        border-radius: 8px;
+        transition: all 0.2s;
+    }
+    
+    .sidebar-link.active,
+    .sidebar-link:hover {
+        background-color: #374151;
+        color: var(--sidebar-link-hover);
+    }
+
+    .sidebar-footer {
+        padding-bottom: 24px;
+    }
+
+    .main-content {
+        margin-left: 80px; /* Same as sidebar width */
+        width: calc(100% - 80px);
+        padding: 24px 40px;
+    }
+
+    .dashboard-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 24px;
+    }
+    .dashboard-header h1 {
+        font-size: 1.8rem;
+        font-weight: 700;
+        color: var(--text-dark);
+        margin: 0;
+    }
+    .header-actions {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+    }
+    
+    .campaign-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 10px 16px;
+        background-color: var(--primary-accent);
+        color: white;
+        text-decoration: none;
+        border-radius: 8px;
+        font-weight: 500;
+        font-size: 0.9rem;
+        transition: background-color 0.2s;
+    }
+    
+    .campaign-btn:hover {
+        background-color: #4f46e5;
+        color: white;
+    }
+    .user-profile {
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        background-color: var(--border-color);
+        /* In a real app, you would use an <img> tag */
+    }
+
+    .dashboard-subheader {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 24px;
+    }
+    .subheader-info p {
+        color: var(--text-light);
+        margin: 0;
+    }
+    .performance-score-card {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        background-color: var(--card-bg);
+        padding: 12px 20px;
+        border-radius: 12px;
+        border: 1px solid var(--border-color);
+    }
+    .score-circle {
+        width: 50px;
+        height: 50px;
+        position: relative;
+    }
+    .score-text {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        font-weight: 700;
+        font-size: 1.2rem;
+    }
+    
+    .filter-section {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 24px;
+    }
+    .filter-buttons {
+        display: flex;
+        gap: 12px;
+    }
+    .btn {
+        padding: 10px 20px;
+        border-radius: 8px;
+        border: 1px solid var(--border-color);
+        background-color: var(--card-bg);
+        font-weight: 500;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    .btn-primary {
+        background-color: var(--primary-accent);
+        color: white;
+        border-color: var(--primary-accent);
+    }
+    .search-bar {
+        position: relative;
+    }
+    .search-bar input {
+        padding: 10px 16px 10px 40px;
+        border-radius: 8px;
+        border: 1px solid var(--border-color);
+        width: 300px;
+    }
+    .search-bar svg {
+        position: absolute;
+        left: 12px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: var(--text-light);
+    }
+
+    .section-title {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 16px;
+    }
+    .section-title h2 {
+        font-size: 1.25rem;
+        font-weight: 600;
+        margin: 0;
+    }
+
+    .kpi-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 24px;
+        margin-bottom: 32px;
+    }
+    .kpi-card {
+        background-color: var(--card-bg);
+        padding: 24px;
+        border-radius: 12px;
+        border: 1px solid var(--border-color);
+    }
+    .kpi-card p {
+        margin: 0;
+        color: var(--text-light);
+        font-size: 0.9rem;
+    }
+    .kpi-card .value {
+        font-size: 1.8rem;
+        font-weight: 700;
+        margin: 8px 0;
+    }
+    .kpi-card .change {
+        font-size: 0.9rem;
+        font-weight: 500;
+    }
+    .change.positive { color: var(--green-positive); }
+    .change.negative { color: var(--red-negative); }
+
+    .analysis-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 24px;
+        margin-bottom: 32px;
+    }
+
+    .match-type-card {
+        background-color: var(--card-bg);
+        padding: 24px;
+        border-radius: 12px;
+        border: 1px solid var(--border-color);
+        border-top: 4px solid;
+    }
+    .match-type-card.broad { border-color: #3b82f6; }
+    .match-type-card.phrase { border-color: var(--orange-neutral); }
+    .match-type-card.exact { border-color: var(--green-positive); }
+
+    .match-type-card .card-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 16px;
+    }
+    .match-type-card h3 {
+        margin: 0;
+        font-size: 1.1rem;
+        font-weight: 600;
+    }
+    .match-type-card .metric-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 16px;
+        margin-top: 16px;
+        margin-bottom: 16px;
+    }
+    .metric-grid div p {
+        margin: 0;
+        font-size: 0.85rem;
+        color: var(--text-light);
+    }
+    .metric-grid div .value {
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: var(--text-dark);
+    }
+    .performance-bar-container {
+        width: 100%;
+        background-color: var(--border-color);
+        height: 8px;
+        border-radius: 4px;
+        overflow: hidden;
+    }
+    .performance-bar {
+        height: 100%;
+        background-color: var(--primary-accent);
+        border-radius: 4px;
+    }
+    
+    .chart-card {
+        background-color: var(--card-bg);
+        padding: 24px;
+        border-radius: 12px;
+        border: 1px solid var(--border-color);
+    }
+    .date-filter {
+        display: flex;
+        gap: 8px;
+        background-color: var(--page-bg);
+        padding: 4px;
+        border-radius: 8px;
+    }
+    .date-filter button {
+        padding: 6px 12px;
+        border: none;
+        background-color: transparent;
+        border-radius: 6px;
+        cursor: pointer;
+        font-weight: 500;
+    }
+    .date-filter button.active {
+        background-color: var(--card-bg);
+        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+
+</style>
+
+<div class="dashboard-container">
+    <aside class="sidebar">
+        <div class="sidebar-logo">
+             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/><path d="M5 3v4"/><path d="M19 17v4"/><path d="M3 5h4"/><path d="M17 19h4"/></svg>
+        </div>
+        <nav>
+            <a href="#" class="sidebar-link active" title="Dashboard"> <!-- Active Link -->
+                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20V10"/><path d="M18 20V4"/><path d="M6 20V16"/></svg>
+            </a>
+            <a href="#" class="sidebar-link" title="Reports">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><line x1="10" y1="9" x2="8" y2="9"/></svg>
+            </a>
+        </nav>
+         <div class="sidebar-footer">
+            <a href="{% url 'platform_selector' %}" class="sidebar-link" title="Switch Platform">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 2.1a9.9 9.9 0 0 1 3.9 3.9"/><path d="M2.4 14.1A9.9 9.9 0 0 1 14 2.4"/><path d="M21.6 9.9A9.9 9.9 0 0 1 9.9 21.6"/><path d="M10 14A9.9 9.9 0 0 1 21.9 10"/><path d="M2 12h5"/><path d="M17 12h5"/><path d="M12 2v5"/><path d="M12 17v5"/></svg>
+            </a>
+        </div>
+    </aside>
+
+    <main class="main-content">
+        <header class="dashboard-header">
+            <div>
+                <h1>Comprehensive Dashboard</h1>
+                {% if platform_name %}
+                    <p style="margin: 4px 0 0 0; color: var(--text-light); font-size: 0.9rem;">
+                        Platform: <strong>{{ platform_name }}</strong>
+                        {% if account and account.business_profile %}
+                            | Business: <strong>{{ account.business_profile.business_name }}</strong>
+                        {% endif %}
+                    </p>
+                {% endif %}
+            </div>
+            <div class="header-actions">
+                <a href="{% url 'campaign_create' platform='google' %}" class="campaign-btn">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                        <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z"/>
+                    </svg>
+                    Campaign
+                </a>
+                <!-- User profile would be dynamic -->
+                <div class="user-profile"></div>
+            </div>
+        </header>
+
+        <section class="dashboard-subheader">
+            <div class="subheader-info">
+                <p>Complete match-type performance analysis across all your campaigns</p>
+            </div>
+            <div class="performance-score-card">
+                <span>Performance Score</span>
+                <div class="score-circle">
+                    <canvas id="performanceScoreChart"></canvas>
+                    <div class="score-text">84</div>
+                </div>
+            </div>
+        </section>
+
+        <section class="filter-section">
+            <div class="filter-buttons">
+                <button class="btn btn-primary">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                    New Campaign
+                </button>
+                <button class="btn">View Reports</button>
+                <button class="btn">Filters</button>
+            </div>
+            <div class="search-bar">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                <input type="text" placeholder="Search campaigns, keywords...">
+            </div>
+        </section>
+        
+        <section class="kpi-grid">
+            <div class="kpi-card">
+                <p>Total Spend</p>
+                <h2 class="value">$37,040</h2>
+                <p class="change positive">↑ 18%</p>
+            </div>
+            <div class="kpi-card">
+                <p>Total Conversions</p>
+                <h2 class="value">4,273</h2>
+                <p class="change positive">↑ 17%</p>
+            </div>
+            <div class="kpi-card">
+                <p>Avg. CTR</p>
+                <h2 class="value">4.4%</h2>
+                <p class="change positive">↑ 8%</p>
+            </div>
+            <div class="kpi-card">
+                <p>ROAS</p>
+                <h2 class="value">4.2x</h2>
+                <p class="change positive">↑ 15%</p>
+            </div>
+        </section>
+
+        <section class="analysis-grid">
+            <!-- Broad Match Card -->
+            <div class="match-type-card broad">
+                <div class="card-header">
+                    <h3>Broad Match</h3>
+                    <span class="change positive">+12.5%</span>
+                </div>
+                <div class="metric-grid">
+                    <div>
+                        <p>Total Spend</p>
+                        <span class="value">$12,450</span>
+                    </div>
+                     <div>
+                        <p>Conversions</p>
+                        <span class="value">1,247</span>
+                    </div>
+                     <div>
+                        <p>Click Rate</p>
+                        <span class="value">3.2%</span>
+                    </div>
+                     <div>
+                        <p>ROAS</p>
+                        <span class="value">3.8x</span>
+                    </div>
+                </div>
+                <p style="font-size: 0.8rem; color: var(--text-light); margin-bottom: 4px;">Performance Score</p>
+                <div class="performance-bar-container">
+                    <div class="performance-bar" style="width: 65%; background-color: #3b82f6;"></div>
+                </div>
+            </div>
+            <!-- Phrase Match Card -->
+            <div class="match-type-card phrase">
+                 <div class="card-header">
+                    <h3>Phrase Match</h3>
+                    <span class="change negative">-3.2%</span>
+                </div>
+                 <div class="metric-grid">
+                    <div>
+                        <p>Total Spend</p>
+                        <span class="value">$8,920</span>
+                    </div>
+                     <div>
+                        <p>Conversions</p>
+                        <span class="value">892</span>
+                    </div>
+                     <div>
+                        <p>Click Rate</p>
+                        <span class="value">4.1%</span>
+                    </div>
+                     <div>
+                        <p>ROAS</p>
+                        <span class="value">4.2x</span>
+                    </div>
+                </div>
+                <p style="font-size: 0.8rem; color: var(--text-light); margin-bottom: 4px;">Performance Score</p>
+                <div class="performance-bar-container">
+                    <div class="performance-bar" style="width: 80%; background-color: var(--orange-neutral);"></div>
+                </div>
+            </div>
+            <!-- Exact Match Card -->
+            <div class="match-type-card exact">
+                 <div class="card-header">
+                    <h3>Exact Match</h3>
+                    <span class="change positive">+8.7%</span>
+                </div>
+                 <div class="metric-grid">
+                    <div>
+                        <p>Total Spend</p>
+                        <span class="value">$15,670</span>
+                    </div>
+                     <div>
+                        <p>Conversions</p>
+                        <span class="value">2,134</span>
+                    </div>
+                     <div>
+                        <p>Click Rate</p>
+                        <span class="value">5.8%</span>
+                    </div>
+                     <div>
+                        <p>ROAS</p>
+                        <span class="value">4.8x</span>
+                    </div>
+                </div>
+                <p style="font-size: 0.8rem; color: var(--text-light); margin-bottom: 4px;">Performance Score</p>
+                <div class="performance-bar-container">
+                    <div class="performance-bar" style="width: 85%; background-color: var(--green-positive);"></div>
+                </div>
+            </div>
+        </section>
+
+        <section class="chart-section">
+             <div class="section-title">
+                <h2>Match Type Performance Analysis</h2>
+                <div class="date-filter">
+                    <button class="active">7 Days</button>
+                    <button>30 Days</button>
+                    <button>90 Days</button>
+                </div>
+            </div>
+            <div class="chart-card">
+                 <canvas id="matchTypeChart"></canvas>
+            </div>
+        </section>
+    </main>
+</div>
+
+<!-- Include Chart.js from a CDN -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        // --- Performance Score Doughnut Chart ---
+        const scoreCtx = document.getElementById('performanceScoreChart').getContext('2d');
+        new Chart(scoreCtx, {
+            type: 'doughnut',
+            data: {
+                datasets: [{
+                    data: [84, 16], // 84% score, 16% remaining
+                    backgroundColor: [
+                        '#4f46e5',
+                        '#e5e7eb'
+                    ],
+                    borderWidth: 0,
+                    borderRadius: 5,
+                }]
+            },
+            options: {
+                responsive: true,
+                cutout: '80%',
+                plugins: {
+                    legend: { display: false },
+                    tooltip: { enabled: false }
+                },
+                events: []
+            }
+        });
+
+        // --- Match Type Performance Bar Chart ---
+        const matchTypeCtx = document.getElementById('matchTypeChart').getContext('2d');
+        new Chart(matchTypeCtx, {
+            type: 'bar',
+            data: {
+                labels: ['Broad Match', 'Phrase Match', 'Exact Match'],
+                datasets: [
+                    {
+                        label: 'Total Spend',
+                        data: [12450, 8920, 15670],
+                        backgroundColor: '#3b82f6',
+                        yAxisID: 'y',
+                    },
+                    {
+                        label: 'ROAS',
+                        data: [3.8, 4.2, 4.8],
+                        backgroundColor: '#10b981',
+                        yAxisID: 'y1',
+                        type: 'line', // This makes it a line chart on top
+                        borderColor: '#10b981',
+                        tension: 0.3,
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    x: {
+                        grid: { display: false }
+                    },
+                    y: {
+                        beginAtZero: true,
+                        position: 'left',
+                        title: {
+                            display: true,
+                            text: 'Total Spend ($)'
+                        }
+                    },
+                    y1: {
+                        beginAtZero: true,
+                        position: 'right',
+                        title: {
+                            display: true,
+                            text: 'ROAS'
+                        },
+                        grid: {
+                           drawOnChartArea: false, // only draw grid for y axis
+                        }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        position: 'top',
+                    },
+                    tooltip: {
+                        mode: 'index',
+                        intersect: false
+                    }
+                }
+            }
+        });
+    });
+</script>
+{% endblock %}
+

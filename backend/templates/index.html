@@ -1,0 +1,641 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AdFlow Fusion - Choose Your Ad Platform</title>
+    <style>
+        /* --- Basic Setup & Fonts --- */
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+        :root {
+            --background-color: #ffffff;
+            --text-color: #111827;
+            --muted-text-color: #6b7280;
+            --card-background: #ffffff;
+            --card-border: #e5e7eb;
+            --card-hover-border: #d1d5db;
+            --button-background: #1f2937;
+            --button-text: #ffffff;
+            --accent-color: #4f46e5;
+            --popular-bg: #ffedd5;
+            --popular-text: #f97316;
+            --error-color: #ef4444;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--background-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 40px 20px;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            min-height: 100vh;
+        }
+
+        /* --- Main Container --- */
+        .container {
+            max-width: 1100px;
+            width: 100%;
+            text-align: center;
+        }
+
+        /* --- Header --- */
+        .header {
+            margin-bottom: 48px;
+            position: relative;
+        }
+        
+        .header-auth-area {
+            position: absolute;
+            top: 0;
+            right: 0;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .auth-welcome-message {
+            font-size: 0.9rem;
+            color: var(--muted-text-color);
+        }
+
+        .auth-button {
+            padding: 10px 20px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            background-color: var(--button-background);
+            color: var(--button-text);
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            text-decoration: none;
+        }
+
+        .auth-button:hover {
+            background-color: #374151;
+        }
+
+        .header-logo {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .header-logo-icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+        }
+
+        .header h1 {
+            font-size: 2.25rem;
+            font-weight: 700;
+            margin: 0;
+        }
+
+        .header h2 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin: 0 0 8px 0;
+        }
+
+        .header p {
+            font-size: 1rem;
+            color: var(--muted-text-color);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        /* --- Platform Grid --- */
+        .platform-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 24px;
+        }
+
+        /* --- Platform Card --- */
+        .platform-card {
+            background-color: var(--card-background);
+            border: 1px solid var(--card-border);
+            border-radius: 12px;
+            padding: 24px;
+            text-align: left;
+            transition: all 0.2s ease-in-out;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .platform-card:hover {
+            border-color: var(--card-hover-border);
+            transform: translateY(-4px);
+            box-shadow: 0 10px 15px -3px rgba(0,0,0,0.05), 0 4px 6px -2px rgba(0,0,0,0.05);
+        }
+
+        .card-header {
+            display: flex;
+            align-items: flex-start;
+            gap: 16px;
+            margin-bottom: 16px;
+        }
+
+        .card-logo {
+            font-size: 2rem;
+        }
+
+        .card-title {
+            font-size: 1.125rem;
+            font-weight: 600;
+            margin: 0;
+        }
+
+        .card-subtitle {
+            font-size: 0.875rem;
+            color: var(--muted-text-color);
+        }
+
+        .card-description {
+            font-size: 0.9rem;
+            color: var(--muted-text-color);
+            margin-bottom: 16px;
+            flex-grow: 1;
+        }
+
+        .card-features {
+            list-style: none;
+            padding: 0;
+            margin: 0 0 24px 0;
+            font-size: 0.9rem;
+        }
+
+        .card-features li {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 8px;
+            color: var(--text-color);
+        }
+
+        .card-features .check-icon {
+            color: #22c55e;
+        }
+
+        .connect-button {
+            width: 95%;
+            padding: 12px;
+            font-size: 1rem;
+            font-weight: 500;
+            background-color: var(--button-background);
+            color: var(--button-text);
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            text-decoration: none; /* For the <a> tag */
+        }
+
+        .connect-button:hover {
+            background-color: #374151;
+        }
+        
+        .popular-badge {
+            position: absolute;
+            top: 16px;
+            right: 16px;
+            background-color: var(--popular-bg);
+            color: var(--popular-text);
+            padding: 4px 10px;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        /* --- Footer --- */
+        .footer {
+            margin-top: 48px;
+            font-size: 0.875rem;
+            color: var(--muted-text-color);
+        }
+        
+        /* --- Login Modal --- */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: none; /* Hidden by default */
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        
+        .modal-overlay.visible {
+            display: flex;
+            opacity: 1;
+        }
+
+        .modal-content {
+            background-color: white;
+            padding: 32px;
+            border-radius: 12px;
+            width: 100%;
+            max-width: 400px;
+            box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1), 0 10px 10px -5px rgba(0,0,0,0.04);
+            position: relative;
+            transform: scale(0.95);
+            transition: transform 0.3s ease;
+        }
+
+        .modal-overlay.visible .modal-content {
+            transform: scale(1);
+        }
+
+        .modal-close-button {
+            position: absolute;
+            top: 16px;
+            right: 16px;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--muted-text-color);
+        }
+
+        .modal-tabs {
+            display: flex;
+            border-bottom: 1px solid var(--card-border);
+            margin-bottom: 24px;
+        }
+
+        .tab-button {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            background: none;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 500;
+            color: var(--muted-text-color);
+            border-bottom: 2px solid transparent;
+            transition: color 0.2s, border-color 0.2s;
+        }
+
+        .tab-button.active {
+            color: var(--accent-color);
+            border-bottom-color: var(--accent-color);
+        }
+
+        .form-content {
+            display: none;
+        }
+
+        .form-content.active {
+            display: block;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: var(--text-color);
+            text-align: left;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 10px;
+            font-size: 1rem;
+            border: 1px solid var(--card-border);
+            border-radius: 8px;
+            box-sizing: border-box;
+        }
+        
+        .form-group input:focus {
+            outline: none;
+            border-color: var(--accent-color);
+            box-shadow: 0 0 0 2px rgba(79, 70, 229, 0.2);
+        }
+        
+        .submit-button {
+            width: 100%;
+            padding: 12px;
+            font-size: 1rem;
+            font-weight: 500;
+            background-color: var(--accent-color);
+            color: var(--button-text);
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        
+        .submit-button:hover {
+            background-color: #4338ca;
+        }
+        
+        .error-message {
+            color: var(--error-color);
+            font-size: 0.875rem;
+            margin-top: 16px;
+            text-align: center;
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <header class="header">
+            <div class="header-auth-area">
+                {% if user.is_authenticated %}
+                    <span class="auth-welcome-message">Welcome, {{ user.username }}!</span>
+                    <a href="{% url 'logout' %}" class="auth-button">Logout</a>
+                {% else %}
+                    <button class="auth-button" id="loginBtn">Login</button>
+                {% endif %}
+            </div>
+            <div class="header-logo">
+                <div class="header-logo-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/><path d="M5 3v4"/><path d="M19 17v4"/><path d="M3 5h4"/><path d="M17 19h4"/></svg>
+                </div>
+                <h1>AdFlow Fusion</h1>
+            </div>
+            <h2>Choose Your Ad Platform</h2>
+            <p>Connect to your preferred advertising platform to start analyzing your campaigns. We support all major ad networks with real-time data synchronization.</p>
+        </header>
+
+        <main class="platform-grid">
+            <!-- Google Ads Card -->
+            <div class="platform-card">
+                 <div class="popular-badge">✨ Popular</div>
+                <div class="card-header">
+                    <div class="card-logo">🔍</div>
+                    <div>
+                        <h3 class="card-title">Google Ads</h3>
+                        <p class="card-subtitle">OAuth2.0</p>
+                    </div>
+                </div>
+                <p class="card-description">The world's largest search advertising platform</p>
+                <ul class="card-features">
+                    <li><span class="check-icon">✓</span> Search Campaigns</li>
+                    <li><span class="check-icon">✓</span> Display Network</li>
+                    <li><span class="check-icon">✓</span> YouTube Ads</li>
+                    <li><span class="check-icon">✓</span> Shopping Ads</li>
+                </ul>
+         
+                <a href="http://127.0.0.1:8000/api/google/connect/" class="connect-button">Connect →</a>
+            </div>
+            
+            <!-- Meta Ads Card -->
+             <div class="platform-card">
+                <div class="popular-badge">✨ Popular</div>
+                <div class="card-header">
+                    <div class="card-logo">📘</div>
+                    <div>
+                        <h3 class="card-title">Meta Ads</h3>
+                        <p class="card-subtitle">OAuth2.0</p>
+                    </div>
+                </div>
+                <p class="card-description">Facebook, Instagram & Audience Network advertising</p>
+                <ul class="card-features">
+                    <li><span class="check-icon">✓</span> Facebook Ads</li>
+                    <li><span class="check-icon">✓</span> Instagram Ads</li>
+                    <li><span class="check-icon">✓</span> Messenger Ads</li>
+                    <li><span class="check-icon">✓</span> Audience Network</li>
+                </ul>
+                <a href="http://127.0.0.1:8000/api/meta/connect/" class="connect-button">Connect →</a>
+            </div>
+
+            <!-- Amazon Advertising Card -->
+            <div class="platform-card">
+                <div class="card-header">
+                    <div class="card-logo">📦</div>
+                    <div>
+                        <h3 class="card-title">Amazon Advertising</h3>
+                        <p class="card-subtitle">API Keys</p>
+                    </div>
+                </div>
+                <p class="card-description">Reach customers on Amazon's marketplace</p>
+                <ul class="card-features">
+                    <li><span class="check-icon">✓</span> Sponsored Products</li>
+                    <li><span class="check-icon">✓</span> Sponsored Brands</li>
+                    <li><span class="check-icon">✓</span> Display Ads</li>
+                    <li><span class="check-icon">✓</span> Video Ads</li>
+                </ul>
+                <a href="http://127.0.0.1:8000/api/amazon/connect/" class="connect-button">Connect →</a>
+            </div>
+
+            <!-- Microsoft Ads Card -->
+            <div class="platform-card">
+                <div class="card-header">
+                    <div class="card-logo">🔷</div>
+                    <div>
+                        <h3 class="card-title">Microsoft Ads</h3>
+                        <p class="card-subtitle">OAuth2.0</p>
+                    </div>
+                </div>
+                <p class="card-description">Bing and Yahoo search network advertising</p>
+                <ul class="card-features">
+                    <li><span class="check-icon">✓</span> Search Ads</li>
+                    <li><span class="check-icon">✓</span> Shopping Campaigns</li>
+                    <li><span class="check-icon">✓</span> Audience Ads</li>
+                    <li><span class="check-icon">✓</span> Microsoft Audience</li>
+                </ul>
+                <a href="#" class="connect-button">Connect →</a>
+            </div>
+
+            <!-- LinkedIn Ads Card -->
+            <div class="platform-card">
+                <div class="card-header">
+                    <div class="card-logo">💼</div>
+                    <div>
+                        <h3 class="card-title">LinkedIn Ads</h3>
+                        <p class="card-subtitle">OAuth2.0</p>
+                    </div>
+                </div>
+                <p class="card-description">Professional network advertising platform</p>
+                <ul class="card-features">
+                    <li><span class="check-icon">✓</span> Sponsored Content</li>
+                    <li><span class="check-icon">✓</span> Message Ads</li>
+                    <li><span class="check-icon">✓</span> Dynamic Ads</li>
+                    <li><span class="check-icon">✓</span> Text Ads</li>
+                </ul>
+                <a href="#" class="connect-button">Connect →</a>
+            </div>
+
+            <!-- Twitter Ads Card -->
+            <div class="platform-card">
+                <div class="card-header">
+                    <div class="card-logo">🐦</div>
+                    <div>
+                        <h3 class="card-title">Twitter Ads</h3>
+                        <p class="card-subtitle">OAuth2.0</p>
+                    </div>
+                </div>
+                <p class="card-description">Real-time conversation advertising</p>
+                <ul class="card-features">
+                    <li><span class="check-icon">✓</span> Promoted Tweets</li>
+                    <li><span class="check-icon">✓</span> Promoted Accounts</li>
+                    <li><span class="check-icon">✓</span> Promoted Trends</li>
+                    <li><span class="check-icon">✓</span> Video Ads</li>
+                </ul>
+                <a href="#" class="connect-button">Connect →</a>
+            </div>
+        </main>
+
+        <footer class="footer">
+            <p>🔒 Your credentials are encrypted and stored securely</p>
+            <p>Need help? Contact our support team anytime</p>
+        </footer>
+    </div>
+    
+    <!-- Login/Register Modal -->
+    <div class="modal-overlay" id="authModal">
+        <div class="modal-content">
+            <button class="modal-close-button" id="closeModalBtn">&times;</button>
+            <div class="modal-tabs">
+                <button class="tab-button active" data-tab="login">Login</button>
+                <button class="tab-button" data-tab="register">Register</button>
+            </div>
+            
+            <!-- Login Form -->
+            <div class="form-content active" id="login-form">
+                <form method="POST" action="{% url 'auth' %}">
+                    {% csrf_token %}
+                    <input type="hidden" name="form_type" value="login">
+                    <div class="form-group">
+                        <label for="login-username">Username</label>
+                        <input type="text" id="login-username" name="username" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="login-password">Password</label>
+                        <input type="password" id="login-password" name="password" required>
+                    </div>
+                    <button type="submit" class="submit-button">Login</button>
+                    {% if login_error %}
+                        <p class="error-message">{{ login_error }}</p>
+                    {% endif %}
+                </form>
+            </div>
+            
+            <!-- Register Form -->
+            <div class="form-content" id="register-form">
+                <form method="POST" action="{% url 'auth' %}">
+                    {% csrf_token %}
+                    <input type="hidden" name="form_type" value="register">
+                    <div class="form-group">
+                        <label for="register-username">Username</label>
+                        <input type="text" id="register-username" name="username" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="register-email">Email Address</label>
+                        <input type="email" id="register-email" name="email" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="register-password">Password</label>
+                        <input type="password" id="register-password" name="password" required>
+                    </div>
+                    <button type="submit" class="submit-button">Create Account</button>
+                    {% if register_error %}
+                        <p class="error-message">{{ register_error }}</p>
+                    {% endif %}
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // --- Basic Modal Elements ---
+            const authModal = document.getElementById('authModal');
+            const closeModalBtn = document.getElementById('closeModalBtn');
+            const loginBtn = document.getElementById('loginBtn');
+            const tabButtons = document.querySelectorAll('.tab-button');
+            const formContents = document.querySelectorAll('.form-content');
+            const connectButtons = document.querySelectorAll('.connect-button');
+            
+            // --- User Authentication Status (from Django) ---
+            const isUserAuthenticated = {{ user.is_authenticated|yesno:"true,false" }};
+
+            // --- Modal Visibility Functions ---
+            const showModal = () => authModal.classList.add('visible');
+            const hideModal = () => authModal.classList.remove('visible');
+
+            // --- Event Listeners ---
+            if (loginBtn) {
+                loginBtn.addEventListener('click', showModal);
+            }
+            closeModalBtn.addEventListener('click', hideModal);
+            authModal.addEventListener('click', (event) => {
+                if (event.target === authModal) {
+                    hideModal();
+                }
+            });
+
+            // --- Connect Button Logic ---
+            connectButtons.forEach(button => {
+                button.addEventListener('click', (event) => {
+                    if (!isUserAuthenticated) {
+                        // If the user is not logged in, prevent the link from being followed
+                        event.preventDefault();
+                        // And show the login modal instead
+                        showModal();
+                    }
+                    // If the user is authenticated, the link will work as normal.
+                });
+            });
+
+            // --- Tab Switching Logic ---
+            tabButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    tabButtons.forEach(btn => btn.classList.remove('active'));
+                    formContents.forEach(form => form.classList.remove('active'));
+
+                    button.classList.add('active');
+                    const tabName = button.getAttribute('data-tab');
+                    document.getElementById(`${tabName}-form`).classList.add('active');
+                });
+            });
+
+            // --- Show Modal on Backend Error ---
+            // If Django re-renders the page with an error, this script shows the modal.
+            {% if login_error or register_error %}
+                showModal();
+                // If there's a registration error, switch to the register tab automatically
+                {% if register_error %}
+                    document.querySelector('.tab-button[data-tab="login"]').classList.remove('active');
+                    document.getElementById('login-form').classList.remove('active');
+                    document.querySelector('.tab-button[data-tab="register"]').classList.add('active');
+                    document.getElementById('register-form').classList.add('active');
+                {% endif %}
+            {% endif %}
+        });
+    </script>
+
+</body>
+</html>
+

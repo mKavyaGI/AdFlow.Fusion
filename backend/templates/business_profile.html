@@ -1,0 +1,319 @@
+{% extends 'base.html' %}
+
+{% block title %}Business Profiles{% endblock %}
+
+{% block content %}
+<style>
+    /* Color Palette & General Setup */
+    :root {
+        --primary-color: #4f46e5; /* Indigo */
+        --primary-hover: #4338ca;
+        --border-color: #e5e7eb; /* Cool Gray 200 */
+        --card-bg: #ffffff;
+        --body-bg: #f9fafb; /* Cool Gray 50 */
+        --text-color: #1f2937; /* Cool Gray 800 */
+        --muted-text-color: #6b7280; /* Cool Gray 500 */
+        --success-color: #065f46; /* Green 800 */
+        --success-bg: #d1fae5; /* Green 100 */
+    }
+
+    body {
+        background-color: var(--body-bg);
+        color: var(--text-color);
+        font-family: 'Inter', sans-serif; /* A clean, modern font */
+    }
+
+    .container {
+        max-width: 900px;
+        margin: 32px auto;
+        padding: 0 16px;
+    }
+
+    /* Page Header */
+    .page-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 24px;
+        border-bottom: 1px solid var(--border-color);
+        padding-bottom: 16px;
+    }
+    .page-header h1 {
+        font-size: 2rem;
+        font-weight: 600;
+        margin: 0;
+    }
+    
+    /* Business Profile Card (Expandable) */
+    .business-card {
+        background: var(--card-bg);
+        border: 1px solid var(--border-color);
+        border-radius: 12px;
+        margin-bottom: 16px;
+        overflow: hidden;
+        box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -2px rgba(0,0,0,0.1);
+        transition: box-shadow 0.3s ease;
+    }
+    .business-card:hover {
+        box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -4px rgba(0,0,0,0.1);
+    }
+
+    .card-summary {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 20px 24px;
+        cursor: pointer;
+    }
+
+    .summary-info h3 {
+        margin: 0;
+        font-size: 1.25rem;
+        font-weight: 500;
+    }
+    .summary-info p {
+        margin: 4px 0 0 0;
+        color: var(--muted-text-color);
+        font-size: 0.9rem;
+    }
+
+    .expand-icon {
+        transition: transform 0.3s ease;
+        color: var(--muted-text-color);
+    }
+
+    .card-details {
+        max-height: 0;
+        overflow: hidden;
+        transition: max-height 0.5s ease-in-out, padding 0.5s ease-in-out;
+        padding: 0 24px;
+        border-top: 1px solid var(--border-color);
+    }
+    
+    /* Expanded State */
+    .business-card.expanded .card-details {
+        max-height: 1000px; /* Large enough to fit content */
+        padding: 24px;
+    }
+    .business-card.expanded .expand-icon {
+        transform: rotate(180deg);
+    }
+    
+    .details-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 16px 24px;
+        margin-bottom: 24px;
+    }
+
+    .detail-item strong {
+        display: block;
+        margin-bottom: 4px;
+        color: #374151; /* Cool Gray 700 */
+        font-weight: 500;
+        font-size: 0.9rem;
+    }
+    .detail-item span {
+        font-size: 1rem;
+        line-height: 1.5;
+    }
+
+    /* Add Campaign Button */
+    .add-campaign-btn {
+        display: inline-block;
+        padding: 10px 16px;
+        background: var(--primary-color);
+        color: #fff;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        text-decoration: none;
+        font-weight: 500;
+        transition: background-color 0.2s ease;
+    }
+    .add-campaign-btn:hover {
+        background: var(--primary-hover);
+    }
+
+    /* Add New Business Form */
+    .form-card {
+        background: var(--card-bg);
+        border: 1px solid var(--border-color);
+        border-radius: 12px;
+        padding: 24px 32px 32px;
+        margin-top: 32px;
+    }
+
+    .section-title {
+        margin: 0 0 24px 0;
+        font-size: 1.5rem;
+        font-weight: 600;
+    }
+    .form-group {
+        margin-bottom: 20px;
+    }
+    .form-group label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: 500;
+        font-size: 0.9rem;
+    }
+    .form-group input, .form-group textarea {
+        width: 100%;
+        padding: 12px;
+        border: 1px solid #d1d5db;
+        border-radius: 8px;
+        transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    .form-group input:focus, .form-group textarea:focus {
+        outline: none;
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.3);
+    }
+    
+    .submit-button {
+        display: inline-block;
+        width: auto;
+        padding: 12px 24px;
+        background: var(--primary-color);
+        color: #fff;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 1rem;
+        font-weight: 500;
+        transition: background-color 0.2s ease;
+    }
+    .submit-button:hover {
+        background: var(--primary-hover);
+    }
+    
+     /* Utility Classes */
+     .muted { color: var(--muted-text-color); text-align: center; }
+     .success {
+         padding: 12px 16px;
+         margin-bottom: 20px;
+         background: var(--success-bg);
+         color: var(--success-color);
+         border-radius: 8px;
+         border: 1px solid #6ee7b7;
+     }
+     .error {
+         padding: 12px 16px;
+         margin-bottom: 20px;
+         background: #fef2f2;
+         color: #dc2626;
+         border-radius: 8px;
+         border: 1px solid #fca5a5;
+     }
+</style>
+
+<div class="container">
+    <div class="page-header">
+        <h1>Business Profiles</h1>
+    </div>
+
+    {% for profile in profiles %}
+    <div class="business-card">
+        <div class="card-summary">
+            <div class="summary-info">
+                <h3>{{ profile.business_name }}</h3>
+                <p><a href="{{ profile.website_url }}" target="_blank" rel="noopener noreferrer">{{ profile.website_url }}</a></p>
+            </div>
+            <div class="expand-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+            </div>
+        </div>
+        <div class="card-details">
+            <div class="details-grid">
+                <div class="detail-item">
+                    <strong>Industry</strong>
+                    <span>{{ profile.industry|default:'Not specified' }}</span>
+                </div>
+                <div class="detail-item">
+                    <strong>Target Locations</strong>
+                    <span>{{ profile.target_locations }}</span>
+                </div>
+                <div class="detail-item" style="grid-column: 1 / -1;">
+                    <strong>Business Description</strong>
+                    <span>{{ profile.business_description }}</span>
+                </div>
+                <div class="detail-item">
+                    <strong>Products or Services</strong>
+                    <span>{{ profile.products_or_services }}</span>
+                </div>
+                <div class="detail-item">
+                    <strong>Target Audience</strong>
+                    <span>{{ profile.target_audience }}</span>
+                </div>
+            </div>
+             <a href="{% url 'dashboard_dummy' %}" class="add-campaign-btn">View Campaign</a>
+        </div>
+    </div>
+    {% empty %}
+        <p class="muted">No business profiles found. Use the form below to add your first one.</p>
+    {% endfor %}
+
+     <div class="form-card">
+         <h2 class="section-title">Add a New Business</h2>
+         {% if success %}
+             <p class="success">{{ success }}</p>
+         {% endif %}
+         {% if error %}
+             <p class="error">{{ error }}</p>
+         {% endif %}
+         <form method="POST" id="business-form">
+            {% csrf_token %}
+            <div class="form-group">
+                <label for="business_name">Business Name</label>
+                <input type="text" id="business_name" name="business_name" required>
+            </div>
+            <div class="form-group">
+                <label for="website_url">Website URL</label>
+                <input type="url" id="website_url" name="website_url" placeholder="https://www.example.com" required>
+            </div>
+            <div class="form-group">
+                <label for="industry">Industry</label>
+                <input type="text" id="industry" name="industry" placeholder="e.g., E-commerce, SaaS, Local Services">
+            </div>
+            <div class="form-group">
+                <label for="business_description">Business Description</label>
+                <textarea id="business_description" name="business_description" rows="4" placeholder="Briefly describe what your business does." required></textarea>
+            </div>
+            <div class="form-group">
+                <label for="products_or_services">Products or Services</label>
+                <textarea id="products_or_services" name="products_or_services" rows="3" placeholder="List your main products or services." required></textarea>
+            </div>
+            <div class="form-group">
+                <label for="target_audience">Target Audience</label>
+                <textarea id="target_audience" name="target_audience" rows="3" placeholder="Describe your ideal customers." required></textarea>
+            </div>
+            <div class="form-group">
+                <label for="target_locations">Target Locations</label>
+                <input type="text" id="target_locations" name="target_locations" placeholder="e.g., San Francisco, CA; India" required>
+            </div>
+            <button type="submit" class="submit-button">Save Business Profile</button>
+        </form>
+    </div>
+</div>
+
+ <script>
+ document.addEventListener('DOMContentLoaded', function () {
+     const businessCards = document.querySelectorAll('.business-card');
+
+     businessCards.forEach(card => {
+         const summary = card.querySelector('.card-summary');
+         summary.addEventListener('click', () => {
+             card.classList.toggle('expanded');
+         });
+     });
+
+     // Clear form after successful submission
+     const successMessage = document.querySelector('.success');
+     if (successMessage) {
+         document.getElementById('business-form').reset();
+     }
+ });
+ </script>
+
+{% endblock %}

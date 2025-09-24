@@ -1,0 +1,167 @@
+{% extends 'base.html' %}
+
+{% block title %}Create Campaign - {{ platform_display }}{% endblock %}
+
+{% block content %}
+<style>
+    .container { max-width: 800px; margin: 0 auto; padding: 20px; }
+    .card { background: #fff; border: 1px solid #e5e7eb; border-radius: 12px; padding: 24px; margin-bottom: 20px; }
+    .section-title { margin: 0 0 20px 0; font-size: 1.5rem; font-weight: 600; }
+    .form-group { margin-bottom: 16px; }
+    .form-group label { display: block; margin-bottom: 6px; font-weight: 500; }
+    .form-group input, .form-group select, .form-group textarea { 
+        width: 100%; padding: 10px; border: 1px solid #d1d5db; border-radius: 8px; 
+    }
+    .form-row { display: flex; gap: 16px; }
+    .form-row .form-group { flex: 1; }
+    .submit-button { 
+        padding: 12px 24px; background: #4f46e5; color: #fff; border: none; 
+        border-radius: 8px; cursor: pointer; font-weight: 500; 
+    }
+    .submit-button:hover { background: #4338ca; }
+    .error { color: #dc2626; margin-bottom: 16px; padding: 12px; background: #fef2f2; border-radius: 8px; }
+    .keyword-row { display: flex; gap: 12px; margin-bottom: 12px; }
+    .keyword-row input { flex: 2; }
+    .keyword-row select { flex: 1; }
+    .add-keyword-btn { 
+        padding: 8px 16px; background: #10b981; color: #fff; border: none; 
+        border-radius: 6px; cursor: pointer; margin-bottom: 16px; 
+    }
+    .remove-keyword-btn { 
+        padding: 8px 12px; background: #ef4444; color: #fff; border: none; 
+        border-radius: 6px; cursor: pointer; 
+    }
+    .back-link { color: #6b7280; text-decoration: none; margin-bottom: 16px; display: inline-block; }
+</style>
+
+<div class="container">
+    <a href="{% url 'business_profile' %}" class="back-link">← Back to Business Profiles</a>
+    
+    <div class="card">
+        <h1 class="section-title">Create {{ platform_display }} Campaign</h1>
+        
+        {% if error %}
+            <div class="error">{{ error }}</div>
+        {% endif %}
+        
+        <form method="POST" id="campaign-form">
+            {% csrf_token %}
+            
+            <!-- Basic Information -->
+            <div class="form-group">
+                <label for="campaign_name">Campaign Name *</label>
+                <input type="text" id="campaign_name" name="campaign_name" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="campaign_description">Campaign Description</label>
+                <textarea id="campaign_description" name="campaign_description" rows="3"></textarea>
+            </div>
+            
+            <!-- Account Selection -->
+            <div class="form-group">
+                <label for="ad_account">Ad Account *</label>
+                <select id="ad_account" name="ad_account" required>
+                    <option value="">Select an ad account</option>
+                    {% for account in ad_accounts %}
+                        <option value="{{ account.id }}">{{ account.account_name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="business_profile">Business Profile</label>
+                <select id="business_profile" name="business_profile">
+                    <option value="">Select a business profile (optional)</option>
+                    {% for profile in business_profiles %}
+                        <option value="{{ profile.id }}">{{ profile.business_name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            
+            <!-- Budget and Bidding -->
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="daily_budget">Daily Budget ($) *</label>
+                    <input type="number" id="daily_budget" name="daily_budget" step="0.01" min="0" required>
+                </div>
+                <div class="form-group">
+                    <label for="bid_amount">Bid Amount ($) *</label>
+                    <input type="number" id="bid_amount" name="bid_amount" step="0.01" min="0" required>
+                </div>
+            </div>
+            
+            <!-- Campaign Type -->
+            <div class="form-group">
+                <label for="campaign_type">Campaign Type *</label>
+                <select id="campaign_type" name="campaign_type" required>
+                    <option value="search">Search Campaign</option>
+                    <option value="display">Display Campaign</option>
+                    <option value="video">Video Campaign</option>
+                    <option value="shopping">Shopping Campaign</option>
+                    <option value="app">App Campaign</option>
+                </select>
+            </div>
+            
+            <!-- Targeting -->
+            <div class="form-group">
+                <label for="target_locations">Target Locations *</label>
+                <input type="text" id="target_locations" name="target_locations" 
+                       placeholder="e.g., United States, Canada, United Kingdom" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="target_languages">Target Languages</label>
+                <input type="text" id="target_languages" name="target_languages" 
+                       placeholder="e.g., English, Spanish, French">
+            </div>
+            
+            <!-- Keywords -->
+            <div class="form-group">
+                <label>Keywords</label>
+                <button type="button" class="add-keyword-btn" onclick="addKeywordRow()">+ Add Keyword</button>
+                <div id="keywords-container">
+                    <div class="keyword-row">
+                        <input type="text" name="keyword_text" placeholder="Enter keyword">
+                        <select name="keyword_type">
+                            <option value="broad">Broad Match</option>
+                            <option value="phrase">Phrase Match</option>
+                            <option value="exact">Exact Match</option>
+                            <option value="broad_match_modifier">Broad Match Modifier</option>
+                        </select>
+                        <button type="button" class="remove-keyword-btn" onclick="removeKeywordRow(this)">Remove</button>
+                    </div>
+                </div>
+            </div>
+            
+            <button type="submit" class="submit-button">Create Campaign</button>
+        </form>
+    </div>
+</div>
+
+<script>
+function addKeywordRow() {
+    const container = document.getElementById('keywords-container');
+    const newRow = document.createElement('div');
+    newRow.className = 'keyword-row';
+    newRow.innerHTML = `
+        <input type="text" name="keyword_text" placeholder="Enter keyword">
+        <select name="keyword_type">
+            <option value="broad">Broad Match</option>
+            <option value="phrase">Phrase Match</option>
+            <option value="exact">Exact Match</option>
+            <option value="broad_match_modifier">Broad Match Modifier</option>
+        </select>
+        <button type="button" class="remove-keyword-btn" onclick="removeKeywordRow(this)">Remove</button>
+    `;
+    container.appendChild(newRow);
+}
+
+function removeKeywordRow(button) {
+    const container = document.getElementById('keywords-container');
+    if (container.children.length > 1) {
+        button.parentElement.remove();
+    }
+}
+</script>
+{% endblock %}
