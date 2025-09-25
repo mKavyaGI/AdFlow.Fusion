@@ -173,36 +173,38 @@ class DashboardView(LoginRequiredMixin, View):
 
 
 class DashboardDummyDataView(LoginRequiredMixin, View):
-    """Renders the dashboard with pre-filled dummy data."""
+    """Renders the dashboard with data, including recent campaigns."""
     def get(self, request):
-        # Get platform from URL parameter or session
         platform = request.GET.get('platform') or request.session.get('selected_platform', 'google')
-        
-        # Store platform in session for consistency
         request.session['selected_platform'] = platform
         
-        # Get user's business profiles and ad accounts for context
-        business_profiles = BusinessProfile.objects.filter(user=request.user)
-        
-        # Get ad accounts for the specific platform
         platform_name = f'{platform.title()} Ads'
+        recent_campaigns = []
+        mock_account = None
+
         try:
             platform_obj = AdPlatform.objects.get(name=platform_name)
             ad_accounts = UserAdAccount.objects.filter(user=request.user, platform=platform_obj)
+            if ad_accounts.exists():
+                mock_account = ad_accounts.first()
+            
+            # --- MODIFIED PART: Query for the 2 most recent campaigns ---
+            # This fetches campaigns linked to the user and the specific platform,
+            # ordered by the newest first, and takes the top 2.
+            recent_campaigns = Campaign.objects.filter(
+                user=request.user, 
+                ad_account__platform=platform_obj
+            ).order_by('-created_at')[:2]
+
         except AdPlatform.DoesNotExist:
-            ad_accounts = UserAdAccount.objects.filter(user=request.user)
-        
-        # Create a mock account object for template compatibility
-        mock_account = None
-        if ad_accounts.exists():
-            mock_account = ad_accounts.first()
-        
-        # This context dictionary mimics the structure of real data
+            pass
+
         context = {
             'is_dummy': True,
             'account': mock_account,
             'platform_name': platform_name,
             'selected_platform': platform,
+            'recent_campaigns': recent_campaigns, # Pass the real campaigns to the template
             'total_spend': 37040,
             'total_conversions': 4273,
             'avg_ctr': 4.4,

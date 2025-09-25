@@ -182,3 +182,49 @@ class Keyword(models.Model):
     
     def __str__(self):
         return f"{self.keyword_text} ({self.get_match_type_display()})"
+class CampaignPerformance(models.Model):
+    """ 
+    Stores the daily aggregated performance metrics for a specific campaign. 
+    This is for campaign-level totals.
+    """
+    campaign = models.ForeignKey(Campaign, on_delete=models.CASCADE, related_name='performance_data')
+    date = models.DateField(db_index=True)
+
+    # Core metrics fetched from the API
+    impressions = models.PositiveIntegerField(default=0)
+    clicks = models.PositiveIntegerField(default=0)
+    cost = models.DecimalField(max_digits=12, decimal_places=2, help_text="Cost in your account's currency")
+    conversions = models.DecimalField(max_digits=12, decimal_places=2, default=0)
+    
+    # CRITICAL FOR ROAS: You must fetch and store conversion value
+    conversion_value = models.DecimalField(max_digits=12, decimal_places=2, default=0)
+
+    class Meta:
+        unique_together = ('campaign', 'date')
+        ordering = ['-date']
+
+    def __str__(self):
+        return f"{self.campaign.campaign_name} on {self.date}"
+
+
+class KeywordPerformance(models.Model):
+    """
+    Stores the daily performance metrics for each individual keyword.
+    This is needed for the Broad, Phrase, and Exact match breakdown.
+    """
+    keyword = models.ForeignKey(Keyword, on_delete=models.CASCADE, related_name='performance_data')
+    date = models.DateField(db_index=True)
+
+    # Core metrics fetched from the API
+    impressions = models.PositiveIntegerField(default=0)
+    clicks = models.PositiveIntegerField(default=0)
+    cost = models.DecimalField(max_digits=12, decimal_places=2)
+    conversions = models.DecimalField(max_digits=12, decimal_places=2, default=0)
+    conversion_value = models.DecimalField(max_digits=12, decimal_places=2, default=0)
+    
+    class Meta:
+        unique_together = ('keyword', 'date')
+        ordering = ['-date']
+
+    def __str__(self):
+        return f"{self.keyword.keyword_text} on {self.date}"
