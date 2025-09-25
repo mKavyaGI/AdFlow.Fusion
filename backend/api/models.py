@@ -228,3 +228,19 @@ class KeywordPerformance(models.Model):
 
     def __str__(self):
         return f"{self.keyword.keyword_text} on {self.date}"
+
+class KeywordSuggestion(models.Model):
+    """
+    Stores AI-generated keyword suggestions for a specific business profile.
+    """
+    business_profile = models.ForeignKey(BusinessProfile, on_delete=models.CASCADE, related_name='suggestions')
+    keyword = models.CharField(max_length=200)
+    match_type = models.CharField(max_length=20)
+    reason = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f"Suggestion for {self.business_profile.business_name}: {self.keyword}"

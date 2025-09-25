@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>AI-Powered Keyword Recommendations</h2>
+    <p>For business: <strong>{{ business_profile.business_name }}</strong></p>
+    <p>Based on your business profile and past performance, here are some new keyword ideas:</p>
+    
+    <div class="card">
+        <div class="card-header">
+            Gemini's Suggestions
+        </div>
+        <div class="card-body">
+            <pre style="white-space: pre-wrap; word-wrap: break-word;">{{ recommendations }}</pre>
+        </div>
+    </div>
+    
+    <a href="{% url 'business_profile' %}" class="btn btn-primary mt-3">Back to Business Profiles</a>
+</div>
+{% endblock %}

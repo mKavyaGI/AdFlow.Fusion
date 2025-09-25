@@ -248,6 +248,7 @@
                 </div>
             </div>
              <a href="{% url 'dashboard_dummy' %}?platform={{ selected_platform }}" class="add-campaign-btn">View Campaign</a>
+             <a href="{% url 'keyword_recommendations' business_profile_id=profile.id %}" class="add-campaign-btn" style="background-color: #10B981; margin-left: 10px;">Get AI Recommendations</a>
         </div>
     </div>
     {% empty %}
@@ -262,7 +263,7 @@
          {% if error %}
              <p class="error">{{ error }}</p>
          {% endif %}
-         <form method="POST" id="business-form">
+         <form method="POST" action="{% url 'business_profile' %}" id="business-form">
             {% csrf_token %}
             <div class="form-group">
                 <label for="business_name">Business Name</label>

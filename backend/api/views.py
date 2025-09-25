@@ -3,15 +3,17 @@ import os
 from django.conf import settings
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.views import View
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.decorators import login_required
 from google_auth_oauthlib.flow import Flow
 from google.ads.googleads.client import GoogleAdsClient
 from google.ads.googleads.errors import GoogleAdsException
 from collections import defaultdict
 
 from .models import AdPlatform, UserAdAccount, BusinessProfile, Campaign, Keyword
+from .services import generate_new_keyword_recommendations
 
 # --- Constants ---
 CLIENT_SECRETS_FILE = os.path.join(settings.BASE_DIR, 'client_secrets.json')
