@@ -1,0 +1,125 @@
+{% extends 'base.html' %}
+
+{% block title %}Campaigns - {{ platform_display }}{% endblock %}
+
+{% block content %}
+<style>
+    .container { max-width: 1000px; margin: 0 auto; padding: 20px; }
+    .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
+    .header h1 { margin: 0; font-size: 1.8rem; font-weight: 600; }
+    .platform-info { color: #6b7280; font-size: 0.9rem; margin-top: 4px; }
+    .btn { 
+        padding: 10px 16px; border-radius: 8px; text-decoration: none; font-weight: 500; 
+        display: inline-flex; align-items: center; gap: 8px; transition: all 0.2s;
+    }
+    .btn-primary { background: #4f46e5; color: white; }
+    .btn-primary:hover { background: #4338ca; }
+    .btn-secondary { background: #f3f4f6; color: #374151; }
+    .btn-secondary:hover { background: #e5e7eb; }
+    
+    .campaigns-grid { display: grid; gap: 16px; }
+    .campaign-card { 
+        background: white; border: 1px solid #e5e7eb; border-radius: 12px; 
+        padding: 20px; transition: box-shadow 0.2s;
+    }
+    .campaign-card:hover { box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); }
+    
+    .campaign-header { display: flex; justify-content: space-between; align-items: start; margin-bottom: 12px; }
+    .campaign-name { font-size: 1.1rem; font-weight: 600; margin: 0; }
+    .status-badge { 
+        padding: 4px 8px; border-radius: 12px; font-size: 0.75rem; font-weight: 500;
+    }
+    .status-draft { background: #f3f4f6; color: #374151; }
+    .status-active { background: #d1fae5; color: #065f46; }
+    .status-paused { background: #fef3c7; color: #92400e; }
+    .status-ended { background: #fee2e2; color: #991b1b; }
+    
+    .campaign-details { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin-bottom: 16px; }
+    .detail-item { }
+    .detail-label { font-size: 0.75rem; color: #6b7280; margin-bottom: 2px; }
+    .detail-value { font-weight: 500; }
+    
+    .campaign-actions { display: flex; gap: 8px; }
+    .btn-sm { padding: 6px 12px; font-size: 0.875rem; }
+    
+    .empty-state { 
+        text-align: center; padding: 60px 20px; color: #6b7280;
+    }
+    .empty-state h3 { margin: 0 0 8px 0; color: #374151; }
+    .empty-state p { margin: 0 0 20px 0; }
+</style>
+
+<div class="container">
+    <div class="header">
+        <div>
+            <h1>Campaigns</h1>
+            <div class="platform-info">Platform: {{ platform_display }}</div>
+        </div>
+        <div style="display: flex; gap: 12px;">
+            <a href="{% url 'campaign_create' platform=platform %}" class="btn btn-primary">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                    <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z"/>
+                </svg>
+                New Campaign
+            </a>
+            <a href="{% url 'dashboard_dummy' %}?platform={{ platform }}" class="btn btn-secondary">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                    <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z"/>
+                </svg>
+                Dashboard
+            </a>
+        </div>
+    </div>
+    
+    {% if campaigns %}
+        <div class="campaigns-grid">
+            {% for campaign in campaigns %}
+            <div class="campaign-card">
+                <div class="campaign-header">
+                    <h3 class="campaign-name">{{ campaign.campaign_name }}</h3>
+                    <span class="status-badge status-{{ campaign.status }}">{{ campaign.get_status_display }}</span>
+                </div>
+                
+                {% if campaign.campaign_description %}
+                    <p style="margin: 0 0 12px 0; color: #6b7280; font-size: 0.9rem;">{{ campaign.campaign_description }}</p>
+                {% endif %}
+                
+                <div class="campaign-details">
+                    <div class="detail-item">
+                        <div class="detail-label">Type</div>
+                        <div class="detail-value">{{ campaign.get_campaign_type_display }}</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">Daily Budget</div>
+                        <div class="detail-value">${{ campaign.daily_budget }}</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">Bid Amount</div>
+                        <div class="detail-value">${{ campaign.bid_amount }}</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">Keywords</div>
+                        <div class="detail-value">{{ campaign.keywords|length }}</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">Created</div>
+                        <div class="detail-value">{{ campaign.created_at|date:"M d, Y" }}</div>
+                    </div>
+                </div>
+                
+                <div class="campaign-actions">
+                    <a href="{% url 'campaign_detail' campaign_id=campaign.id %}" class="btn btn-secondary btn-sm">View Details</a>
+                    <a href="#" class="btn btn-secondary btn-sm">Edit</a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="empty-state">
+            <h3>No campaigns found</h3>
+            <p>You haven't created any campaigns for {{ platform_display }} yet.</p>
+            <a href="{% url 'campaign_create' platform=platform %}" class="btn btn-primary">Create Your First Campaign</a>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

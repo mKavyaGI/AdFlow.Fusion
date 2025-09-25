@@ -364,16 +364,7 @@
                     </p>
                 {% endif %}
             </div>
-            <div class="header-actions">
-                <a href="{% url 'campaign_create' platform='google' %}" class="campaign-btn">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
-                        <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z"/>
-                    </svg>
-                    Campaign
-                </a>
-                <!-- User profile would be dynamic -->
-                <div class="user-profile"></div>
-            </div>
+          
         </header>
 
         <section class="dashboard-subheader">
@@ -391,10 +382,11 @@
 
         <section class="filter-section">
             <div class="filter-buttons">
-                <button class="btn btn-primary">
+                 <a class="btn btn-primary" href="{% url 'campaign_create' platform=selected_platform %}">
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
                     New Campaign
-                </button>
+                </a>
+                <a href="{% url 'campaign_list' platform=selected_platform %}" class="btn">View Campaigns</a>
                 <button class="btn">View Reports</button>
                 <button class="btn">Filters</button>
             </div>

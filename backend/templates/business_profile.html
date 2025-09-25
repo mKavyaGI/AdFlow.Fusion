@@ -247,7 +247,7 @@
                     <span>{{ profile.target_audience }}</span>
                 </div>
             </div>
-             <a href="{% url 'dashboard_dummy' %}" class="add-campaign-btn">View Campaign</a>
+             <a href="{% url 'dashboard_dummy' %}?platform={{ selected_platform }}" class="add-campaign-btn">View Campaign</a>
         </div>
     </div>
     {% empty %}

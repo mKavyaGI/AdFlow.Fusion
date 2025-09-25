@@ -12,6 +12,7 @@ from .views import (
     AmazonOAuthInitiateView,
     CampaignCreateView,
     CampaignDetailView,
+    CampaignListView,
 )
 
 urlpatterns = [
@@ -40,5 +41,6 @@ urlpatterns = [
     # Campaign URLs
     path('campaign/create/<str:platform>/', CampaignCreateView.as_view(), name='campaign_create'),
     path('campaign/<int:campaign_id>/', CampaignDetailView.as_view(), name='campaign_detail'),
+    path('campaigns/<str:platform>/', CampaignListView.as_view(), name='campaign_list'),
 ]
 

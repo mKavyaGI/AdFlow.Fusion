@@ -62,6 +62,8 @@ class GoogleOAuthInitiateView(LoginRequiredMixin, View):
     Handles displaying the Google Ads credential form and starting the OAuth2 flow.
     """
     def get(self, request):
+        # Store the selected platform in session
+        request.session['selected_platform'] = 'google'
         google_platform, _ = AdPlatform.objects.get_or_create(name='Google Ads')
         existing_account = UserAdAccount.objects.filter(user=request.user, platform=google_platform).first()
         context = {'account': existing_account}
@@ -173,9 +175,22 @@ class DashboardView(LoginRequiredMixin, View):
 class DashboardDummyDataView(LoginRequiredMixin, View):
     """Renders the dashboard with pre-filled dummy data."""
     def get(self, request):
+        # Get platform from URL parameter or session
+        platform = request.GET.get('platform') or request.session.get('selected_platform', 'google')
+        
+        # Store platform in session for consistency
+        request.session['selected_platform'] = platform
+        
         # Get user's business profiles and ad accounts for context
         business_profiles = BusinessProfile.objects.filter(user=request.user)
-        ad_accounts = UserAdAccount.objects.filter(user=request.user)
+        
+        # Get ad accounts for the specific platform
+        platform_name = f'{platform.title()} Ads'
+        try:
+            platform_obj = AdPlatform.objects.get(name=platform_name)
+            ad_accounts = UserAdAccount.objects.filter(user=request.user, platform=platform_obj)
+        except AdPlatform.DoesNotExist:
+            ad_accounts = UserAdAccount.objects.filter(user=request.user)
         
         # Create a mock account object for template compatibility
         mock_account = None
@@ -186,7 +201,8 @@ class DashboardDummyDataView(LoginRequiredMixin, View):
         context = {
             'is_dummy': True,
             'account': mock_account,
-            'platform_name': 'Google Ads' if mock_account else 'Ad Platform',
+            'platform_name': platform_name,
+            'selected_platform': platform,
             'total_spend': 37040,
             'total_conversions': 4273,
             'avg_ctr': 4.4,
@@ -203,10 +219,17 @@ class DashboardDummyDataView(LoginRequiredMixin, View):
 class BusinessProfileView(LoginRequiredMixin, View):
     """Create new BusinessProfile and list all user's businesses."""
     def get(self, request, platform=None):
+        # Store the platform in session if provided
+        if platform:
+            request.session['selected_platform'] = platform
+        
+        # Get platform from session if not provided in URL
+        current_platform = platform or request.session.get('selected_platform', 'google')
+        
         profiles = BusinessProfile.objects.filter(user=request.user)
         context = {
             'profiles': profiles,
-            'selected_platform': platform,
+            'selected_platform': current_platform,
         }
         return render(request, 'business_profile.html', context)
 
@@ -253,6 +276,8 @@ class MetaOAuthInitiateView(LoginRequiredMixin, View):
     Handles displaying the Meta Ads credential form and starting the OAuth2 flow.
     """
     def get(self, request):
+        # Store the selected platform in session
+        request.session['selected_platform'] = 'meta'
         meta_platform, _ = AdPlatform.objects.get_or_create(name='Meta Ads')
         existing_account = UserAdAccount.objects.filter(user=request.user, platform=meta_platform).first()
         context = {'account': existing_account}
@@ -288,6 +313,8 @@ class AmazonOAuthInitiateView(LoginRequiredMixin, View):
     Handles displaying the Amazon Ads credential form for API key authentication.
     """
     def get(self, request):
+        # Store the selected platform in session
+        request.session['selected_platform'] = 'amazon'
         amazon_platform, _ = AdPlatform.objects.get_or_create(name='Amazon Ads')
         existing_account = UserAdAccount.objects.filter(user=request.user, platform=amazon_platform).first()
         context = {'account': existing_account}
@@ -320,6 +347,9 @@ class AmazonOAuthInitiateView(LoginRequiredMixin, View):
 class CampaignCreateView(LoginRequiredMixin, View):
     """Create a new campaign for a specific platform."""
     def get(self, request, platform):
+        # Store platform in session for consistency
+        request.session['selected_platform'] = platform
+        
         # Get user's ad accounts for this platform
         try:
             platform_obj = AdPlatform.objects.get(name=f'{platform.title()} Ads')
@@ -414,3 +444,25 @@ class CampaignDetailView(LoginRequiredMixin, View):
             return render(request, 'campaign_detail.html', context)
         except Campaign.DoesNotExist:
             return redirect('platform_selector')
+
+
+class CampaignListView(LoginRequiredMixin, View):
+    """List campaigns for a specific platform."""
+    def get(self, request, platform):
+        # Store platform in session for consistency
+        request.session['selected_platform'] = platform
+        
+        # Get campaigns for this platform
+        try:
+            platform_obj = AdPlatform.objects.get(name=f'{platform.title()} Ads')
+            ad_accounts = UserAdAccount.objects.filter(user=request.user, platform=platform_obj)
+            campaigns = Campaign.objects.filter(user=request.user, ad_account__platform=platform_obj)
+        except AdPlatform.DoesNotExist:
+            campaigns = []
+        
+        context = {
+            'platform': platform,
+            'platform_display': f'{platform.title()} Ads',
+            'campaigns': campaigns,
+        }
+        return render(request, 'campaign_list.html', context)
